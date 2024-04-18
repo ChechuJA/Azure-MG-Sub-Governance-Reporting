@@ -1,0 +1,3327 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Azure Governance Visualizer aka AzGovViz</title>
+    <script type="text/javascript">
+        var link = document.createElement( "link" );
+        rand = Math.floor(Math.random() * 99999);
+        link.href = "https://www.azadvertizer.net/azgovvizv4/css/azgovvizversion.css?rnd=" + rand;
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        link.media = "screen,print";
+        document.getElementsByTagName( "head" )[0].appendChild( link );
+    </script>
+    <link rel="stylesheet" type="text/css" href="https://www.azadvertizer.net/azgovvizv4/css/azgovvizmain_004_052.css">
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/jquery-3.6.0.min.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/jquery-ui-1.13.0.min.js"></script>
+    <script type="text/javascript" src="https://www.azadvertizer.net/azgovvizv4/js/highlight_v004_002.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/fontawesome-0c0b5cbde8.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/tablefilter/tablefilter.js"></script>
+    <link rel="stylesheet" href="https://www.azadvertizer.net/azgovvizv4/css/highlight-10.5.0.min.css">
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/highlight-10.5.0.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <link rel="stylesheet" type="text/css" href="https://www.azadvertizer.net/azgovvizv4/css/jsonviewer_v01.css">
+    <script type="text/javascript" src="https://www.azadvertizer.net/azgovvizv4/js/jsonviewer_v02.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/dom-to-image.min.js"></script>
+    <script>
+        $(window).on('load', function () {
+            // Animate loader off screen
+            $(".se-pre-con").fadeOut("slow");;
+        });
+    </script>
+
+    <script>
+    // Quick and simple export target #table_id into a csv
+    function download_table_as_csv_semicolon(table_id) {
+        // Select rows from table_id
+        var rows = document.querySelectorAll('table#' + table_id + ' tr');
+        // Construct csv
+        var csv = [];
+        if (window.helpertfConfig4TenantSummary_roleAssignmentsAll !== 1){
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(';'));
+            }
+        }
+        else{
+            for (var i = 1; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(';'));
+            }
+        }
+        var csv_string = csv.join('\n');
+        // Download it
+        var filename = 'export_' + table_id + '_' + new Date().toLocaleDateString('en-CA') + '.csv';
+        var link = document.createElement('a');
+        link.style.display = 'none';
+        link.setAttribute('target', '_blank');
+        link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    </script>
+
+    <script>
+    // Quick and simple export target #table_id into a csv
+    function download_table_as_csv_comma(table_id) {
+        // Select rows from table_id
+        var rows = document.querySelectorAll('table#' + table_id + ' tr');
+        // Construct csv
+        var csv = [];
+        if (window.helpertfConfig4TenantSummary_roleAssignmentsAll !== 1){
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(','));
+            }
+        }
+        else{
+            for (var i = 1; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+                for (var j = 0; j < cols.length; j++) {
+                    // Clean innertext to remove multiple spaces and jumpline (break csv)
+                    var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                    // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                    data = data.replace(/"/g, '""');
+                    // Push escaped string
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(','));
+            }
+        }
+        var csv_string = csv.join('\n');
+        // Download it
+        var filename = 'export_' + table_id + '_' + new Date().toLocaleDateString('en-CA') + '.csv';
+        var link = document.createElement('a');
+        link.style.display = 'none';
+        link.setAttribute('target', '_blank');
+        link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    </script>
+</head><body>
+    <div class="se-pre-con"></div>
+    <div class="tree">
+        <div class="hierarchyTree" id="hierarchyTree">
+            <div class="treeFeatureSel">
+                <p class="pbordered pborderedspecial">HierarchyMap</p>
+                <p>
+    <button id="showHideScopeInfo">Hide<br>ScopeInfo</button><br>
+    <a id="getImage" href="#"><button>save image</button></a>
+    <script>
+        $("#showHideScopeInfo").click(function() {
+            if ($(this).html() == "Hide<br>ScopeInfo") {
+                $(this).html("Show<br>ScopeInfo");
+                jQuery('.extraInfoContent').hide();
+            } else {
+                $(this).html("Hide<br>ScopeInfo");
+                jQuery('.extraInfoContent').show();
+            };
+        });
+    </script>
+</p>
+            </div><ul>
+    <div id="saveAsImageArea">
+    <li id="first" style="background-color:white">                        <a class="tenant">
+                            <div class="main">
+
+                                <div class="extraInfo">
+                                    <div class="extraInfoContent">
+                                    <div class="extraInfoPlchldr"></div>                                            </div>
+                                            <div class="treeMgLogo">
+                                                <img class="imgTreeLogoTenant" src="https://www.azadvertizer.net/azgovvizv4/icon/Azurev2.png">
+                                            </div>
+                                            <div class="extraInfoContent">                                            <div class="extraInfoRoleAss">
+                                                <abbr class="abbrTree" title="1 Role assignments">1</abbr>
+                                            </div>                                    </div>
+                                </div>
+
+                                <div class="fitme" id="fitme">Directorio predeterminado<br>jesusangelsenorangmail.onmicrosoft.com<br>6df7235b-9451-436f-a51c-319ec465ccfe
+                                </div>
+                            </div>
+                        </a>
+        <ul>
+
+                        <li><a class="mgnonradius parentmgnotaccessible defaultMG">
+                        <div class="main">
+
+                        <div class="extraInfo">
+                            <div class="extraInfoContent">                                    <div class="extraInfoPolicyScoped0">
+                                        <abbr class="abbrTree" title="9 Policy/PolicySet definitions scoped">9</abbr>
+                                    </div>                                    </div>
+                                    <div class="treeMgLogo">
+                                        <img class="imgTreeLogo" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg">
+                                    </div>
+                                    <div class="extraInfoContent">                                    <div class="extraInfoRoleAss">
+                                        <abbr class="abbrTree" title="1 Role assignments">1</abbr>
+                                    </div>                            </div>
+                        </div>
+
+                        <div class="fitme" id="fitme">6df7235b-9451-436f-a51c-319ec465ccfe
+                        </div>
+                    </div>
+                </a><ul>                    <li  >
+                        <a class="mgnonradius" href="#table_root" id="hierarchy_root">
+                            <div class="main">
+
+                                <div class="extraInfo">
+                                    <div class="extraInfoContent">    <div class="extraInfoPlchldr"></div>                                            </div>
+                                            <div class="treeMgLogo">
+                                                <img class="imgTreeLogo" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg">
+                                            </div>
+                                            <div class="extraInfoContent">                                            <div class="extraInfoRoleAss">
+                                                <abbr class="abbrTree" title="1 Role assignments">1</abbr>
+                                            </div>                                    </div>
+                                </div>
+
+                                <div class="fitme" id="fitme">root
+                                </div>
+                            </div>
+                        </a>            </li>                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                </div>
+            </ul>
+        </div>
+    </div>    <div class="summprnt" id="summprnt">
+    <div class="summary" id="summary"><p class="pbordered">TenantSummary</p>
+<button type="button" class="collapsible" id="tenantSummaryPolicy"><hr class="hr-textPolicy" data-content="Policy" /></button>
+<div class="content TenantSummaryContent">
+<i class="padlx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Anything which can help you learn Azure Policy</span> <a class="externallink" href="https://github.com/globalbao/awesome-azure-policy" target="_blank" rel="noopener">GitHub <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<button onclick="loadtffunc_TenantSummary_customPolicies()" type="button" class="collapsible" id="buttonTenantSummary_customPolicies"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">9 Custom Policy definitions ManagementGroup 'root' and descendants wide (9 from superior scopes)</span></button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_customPolicies');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_customPolicies');">comma</a>
+<table id="TenantSummary_customPolicies" class="summaryTable">
+<thead>
+<tr>
+<th>Scope</th>
+<th>Scope Id</th>
+<th>Policy DisplayName</th>
+<th>Policy Name</th>
+<th>PolicyId</th>
+<th>Category</th>
+<th>ALZ</th>
+<th>Policy Effect</th>
+<th>Role definitions</th>
+<th>Unique assignments</th>
+<th>Used in PolicySets</th>
+<th>CreatedOn</th>
+<th>CreatedBy</th>
+<th>UpdatedOn</th>
+<th>UpdatedBy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-aad_auth_only_for_iniciative</td>
+<td class="breakwordall">bs-aps-aad_auth_only_for_iniciative</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-aad_auth_only_for_iniciative</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: AuditIfNotExists; Allowed: AuditIfNotExists,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/08/2024 15:58:28</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall"></td>
+<td class="breakwordall"></td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-DenyEncryptInTransitSSLEnforced</td>
+<td class="breakwordall">bs-aps-DenyEncryptInTransitSSLEnforced</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-denyencryptintransitsslenforced</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: Deny; Allowed: Deny,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/11/2024 10:33:14</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall"></td>
+<td class="breakwordall"></td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-EncryptInTransitSSLEnforced</td>
+<td class="breakwordall">bs-aps-EncryptInTransitSSLEnforced</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-encryptintransitsslenforced</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: AuditIfNotExists; Allowed: AuditIfNotExists,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/08/2024 15:52:37</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall"></td>
+<td class="breakwordall"></td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-paccess-allowips-jasl</td>
+<td class="breakwordall">bs-aps-paccess-allowips</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: Audit; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/04/2024 09:57:43</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall">04/04/2024 10:05:06</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-paccess-allowips-onlyfirewallips</td>
+<td class="breakwordall">bs-aps-paccess-allowips-onlyfirewallips</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips-onlyfirewallips</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: AuditIfNotExists; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/05/2024 10:11:00</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall"></td>
+<td class="breakwordall"></td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-paccess-allowips-prueba2-jasl</td>
+<td class="breakwordall">bs-aps-paccess-allowips-prueba2</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips-prueba2</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: Audit; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/04/2024 13:58:14</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall">04/16/2024 09:05:02</td>
+<td class="breakwordall">ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-paccess-allowips-prueba3-jasl</td>
+<td class="breakwordall">bs-aps-paccess-allowips-prueba3</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips-prueba3</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: AuditIfNotExists; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/05/2024 08:42:39</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall">04/05/2024 09:29:49</td>
+<td class="breakwordall">ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-privateendpoint-enabled</td>
+<td class="breakwordall">bs-aps-privateendpoint-enabled</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-privateendpoint-enabled</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: AuditIfNotExists; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/05/2024 09:57:12</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall"></td>
+<td class="breakwordall"></td>
+</tr> <tr>
+<td class="breakwordall">Mg</td>
+<td class="breakwordall">6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td class="breakwordall">bs-aps-user-admin-in-aad</td>
+<td class="breakwordall">bs-aps-user-admin-in-aad</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-user-admin-in-aad</td>
+<td class="breakwordall"></td>
+<td>false</td>
+<td class="breakwordall">Default: AuditIfNotExists; Allowed: AuditIfNotExists,Disabled</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">04/08/2024 08:44:34</td>
+<td class="breakwordall">ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td class="breakwordall"></td>
+<td class="breakwordall"></td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_customPolicies() { if (window.helpertfConfig4TenantSummary_customPolicies !== 1) {
+            window.helpertfConfig4TenantSummary_customPolicies =1;
+            var tfConfig4TenantSummary_customPolicies = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+            btn_reset: true,
+            highlight_keywords: true,
+            alternate_rows: true,
+            auto_filter: { delay: 1100 },
+            no_results_message: true,
+            col_widths: ['50px', '150px', '150px', '150px', '250px', '150px', '50px', '150px', '150px', '150px', '250px', '75px', '150px', '75px', '150px'],
+            col_0: 'select',
+            col_6: 'select',
+            locale: 'en-US',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'date',
+                'caseinsensitivestring',
+                'date',
+                'caseinsensitivestring'
+            ],
+            extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_customPolicies', tfConfig4TenantSummary_customPolicies);
+        tf.init();}}
+    </script>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Orphaned Custom Policy definitions (ManagementGroup 'root' and descendants wide)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Custom PolicySet definitions (ManagementGroup 'root' and descendants wide)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Orphaned Custom PolicySet definitions (ManagementGroup 'root' and descendants wide)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No custom Policy definition(s) built-in Policy rule parity</p>
+<button onclick="loadtffunc_TenantSummary_ALZPolicies()" type="button" class="collapsible" id="buttonTenantSummary_ALZPolicies"><i class="padlx fa fa-retweet" aria-hidden="true" style="color:#23C632"></i> <span class="valignMiddle">Azure Landing Zones (ALZ) Policy Version Checker</span>
+</button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Azure Landing Zones (ALZ)</span> <a class="externallink" href="https://github.com/Azure/Enterprise-Scale/blob/main/docs/ESLZ-Policies.md" target="_blank" rel="noopener">GitHub <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_ALZPolicies');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_ALZPolicies');">comma</a>
+<table id= "TenantSummary_ALZPolicies" class="summaryTable">
+<thead>
+<tr>
+<th>Type</th>
+<th>Policy Name (Id)</th>
+<th>Policy Version</th>
+<th>Policy Scope</th>
+<th>Policy Scope Id</th>
+<th class="uamiresaltbgc">ALZ Policy Name (Id)</th>
+<th class="uamiresaltbgc">ALZ Policy Version</th>
+<th class="uamiresaltbgc">ALZ State <abbr title="obsolete: this policy is no longer ALZ maintained by ALZ&#13;outDated: a new version of the policy available&#13;unknown: ALZ related policy could not be mapped&#13;upToDate: policy matches with latest ALZ policy"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></th>
+<th>Exists in tenant</th>
+<th>Detection method</th>
+<th>AzAdvertizer Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Append-AppService-httpsonly</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Append-AppService-httpsonly.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Append-AppService-latestTLS</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Append-AppService-latestTLS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Append-KV-SoftDelete</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Append-KV-SoftDelete.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Append-Redis-disableNonSslPort</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Append-Redis-disableNonSslPort.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Append-Redis-sslEnforcement</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Append-Redis-sslEnforcement.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-AzureHybridBenefit</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Audit-AzureHybridBenefit.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-Disks-UnusedResourcesCostOptimization</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Audit-Disks-UnusedResourcesCostOptimization.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-MachineLearning-PrivateEndpointId</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Audit-MachineLearning-PrivateEndpointId.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-PrivateLinkDnsZones</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Audit-PrivateLinkDnsZones.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-PublicIpAddresses-UnusedResourcesCostOptimization</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Audit-PublicIpAddresses-UnusedResourcesCostOptimization.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-ServerFarms-UnusedResourcesCostOptimization</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Audit-ServerFarms-UnusedResourcesCostOptimization.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Audit-UnusedResourcesCostOptimization</td>
+<td>2.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Audit-UnusedResourcesCostOptimization.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-AA-child-resources</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-AA-child-resources.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-AppGW-Without-WAF</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-AppGW-Without-WAF.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-AppServiceApiApp-http</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-AppServiceApiApp-http.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-AppServiceFunctionApp-http</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-AppServiceFunctionApp-http.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-AppServiceWebApp-http</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-AppServiceWebApp-http.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Databricks-NoPublicIp</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Databricks-NoPublicIp.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Databricks-Sku</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Databricks-Sku.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Databricks-VirtualNetwork</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Databricks-VirtualNetwork.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-FileServices-InsecureAuth</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-FileServices-InsecureAuth.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-FileServices-InsecureKerberos</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-FileServices-InsecureKerberos.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-FileServices-InsecureSmbChannel</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-FileServices-InsecureSmbChannel.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-FileServices-InsecureSmbVersions</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-FileServices-InsecureSmbVersions.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-Aks</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-Aks.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-Compute-SubnetId</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-Compute-SubnetId.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-Compute-VmSize</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-Compute-VmSize.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-ComputeCluster-RemoteLoginPortPublicAccess</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-ComputeCluster-RemoteLoginPortPublicAccess.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-ComputeCluster-Scale</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-ComputeCluster-Scale.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-HbiWorkspace</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-HbiWorkspace.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-PublicAccessWhenBehindVnet</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-PublicAccessWhenBehindVnet.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MachineLearning-PublicNetworkAccess</td>
+<td>1.0.0-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MachineLearning-PublicNetworkAccess.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MgmtPorts-From-Internet</td>
+<td>2.1.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MgmtPorts-From-Internet.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-MySql-http</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-MySql-http.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-PostgreSql-http</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-PostgreSql-http.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Private-DNS-Zones</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Private-DNS-Zones.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-PublicEndpoint-MariaDB</td>
+<td>1.0.0-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-PublicEndpoint-MariaDB.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-PublicIP</td>
+<td>1.0.0-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-PublicIP.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-PublicPaaSEndpoints</td>
+<td>3.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deny-PublicPaaSEndpoints.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-RDP-From-Internet</td>
+<td>1.0.1-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-RDP-From-Internet.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Redis-http</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Redis-http.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Sql-minTLS</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Sql-minTLS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-SqlMi-minTLS</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-SqlMi-minTLS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Storage-minTLS</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Storage-minTLS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Storage-SFTP</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Storage-SFTP.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-StorageAccount-CustomDomain</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-StorageAccount-CustomDomain.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Subnet-Without-Nsg</td>
+<td>2.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Subnet-Without-Nsg.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Subnet-Without-Penp</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Subnet-Without-Penp.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-Subnet-Without-UDR</td>
+<td>2.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-Subnet-Without-UDR.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-UDR-With-Specific-NextHop</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-UDR-With-Specific-NextHop.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-VNET-Peer-Cross-Sub</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-VNET-Peer-Cross-Sub.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-VNet-Peering</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-VNet-Peering.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deny-VNET-Peering-To-Non-Approved-VNETs</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deny-VNET-Peering-To-Non-Approved-VNETs.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>DenyAction-ActivityLogs</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/DenyAction-ActivityLogs.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>DenyAction-DeleteProtection</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/DenyAction-DeleteProtection.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>DenyAction-DiagnosticLogs</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/DenyAction-DiagnosticLogs.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-ASC-SecurityContacts</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-ASC-SecurityContacts.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-AUM-CheckUpdates</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deploy-AUM-CheckUpdates.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Budget</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Budget.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Custom-Route-Table</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Custom-Route-Table.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-DDoSProtection</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-DDoSProtection.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-AA</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-AA.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-ACI</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-ACI.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-ACR</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-ACR.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-AnalysisService</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-AnalysisService.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-ApiForFHIR</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-ApiForFHIR.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-APIMgmt</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-APIMgmt.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-ApplicationGateway</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-ApplicationGateway.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-AVDScalingPlans</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-AVDScalingPlans.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-Bastion</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-Bastion.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-CDNEndpoints</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-CDNEndpoints.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-CognitiveServices</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-CognitiveServices.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-CosmosDB</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-CosmosDB.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-Databricks</td>
+<td>1.3.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-Databricks.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-DataExplorerCluster</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-DataExplorerCluster.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-DataFactory</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-DataFactory.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-DLAnalytics</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-DLAnalytics.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-EventGridSub</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-EventGridSub.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-EventGridSystemTopic</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-EventGridSystemTopic.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-EventGridTopic</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-EventGridTopic.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-ExpressRoute</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-ExpressRoute.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-Firewall</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-Firewall.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-FrontDoor</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-FrontDoor.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-Function</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-Function.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-HDInsight</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-HDInsight.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-iotHub</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-iotHub.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-LoadBalancer</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-LoadBalancer.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-LogAnalytics</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-LogAnalytics.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-LogAnalytics</td>
+<td>2.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deploy-Diagnostics-LogAnalytics.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-LogicAppsISE</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-LogicAppsISE.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-MariaDB</td>
+<td>1.1.0-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-MariaDB.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-MediaService</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-MediaService.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-MlWorkspace</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-MlWorkspace.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-MySQL</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-MySQL.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-NetworkSecurityGroups</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-NetworkSecurityGroups.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-NIC</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-NIC.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-PostgreSQL</td>
+<td>2.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-PostgreSQL.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-PowerBIEmbedded</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-PowerBIEmbedded.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-RedisCache</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-RedisCache.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-Relay</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-Relay.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-SignalR</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-SignalR.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-SQLElasticPools</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-SQLElasticPools.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-SQLMI</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-SQLMI.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-TimeSeriesInsights</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-TimeSeriesInsights.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-TrafficManager</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-TrafficManager.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-VirtualNetwork</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-VirtualNetwork.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-VM</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-VM.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-VMSS</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-VMSS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-VNetGW</td>
+<td>1.1.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-VNetGW.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-VWanS2SVPNGW</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-VWanS2SVPNGW.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-WebServerFarm</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-WebServerFarm.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-Website</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-Website.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-WVDAppGroup</td>
+<td>1.1.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-WVDAppGroup.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-WVDHostPools</td>
+<td>1.3.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-WVDHostPools.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Diagnostics-WVDWorkspace</td>
+<td>1.1.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Diagnostics-WVDWorkspace.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-FirewallPolicy</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-FirewallPolicy.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-Arc-SQL-DCR-Association</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-MDFC-Arc-SQL-DCR-Association.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-Arc-Sql-DefenderSQL-DCR</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-MDFC-Arc-Sql-DefenderSQL-DCR.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-Config</td>
+<td>7.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deploy-MDFC-Config.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-DefenderSQL-AMA</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deploy-MDFC-DefenderSQL-AMA.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-SQL-AMA</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-MDFC-SQL-AMA.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-SQL-DefenderSQL</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-MDFC-SQL-DefenderSQL.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MDFC-SQL-DefenderSQL-DCR</td>
+<td>1.0.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-MDFC-SQL-DefenderSQL-DCR.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-MySQL-sslEnforcement</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-MySQL-sslEnforcement.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Nsg-FlowLogs</td>
+<td>1.0.0-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Nsg-FlowLogs.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Nsg-FlowLogs-to-LA</td>
+<td>1.1.0-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Nsg-FlowLogs-to-LA.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-PostgreSQL-sslEnforcement</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-PostgreSQL-sslEnforcement.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Private-DNS-Zones</td>
+<td>2.1.2</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deploy-Private-DNS-Zones.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Sql-AuditingSettings</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Sql-AuditingSettings.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-SQL-minTLS</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-SQL-minTLS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Sql-Security</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deploy-Sql-Security.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Sql-SecurityAlertPolicies</td>
+<td>1.1.1</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Sql-SecurityAlertPolicies.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Sql-Tde</td>
+<td>1.1.1-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Sql-Tde.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Sql-vulnerabilityAssessments</td>
+<td>1.0.1-deprecated</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Sql-vulnerabilityAssessments.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Sql-vulnerabilityAssessments_20230706</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Sql-vulnerabilityAssessments_20230706.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-SqlMi-minTLS</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-SqlMi-minTLS.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Storage-sslEnforcement</td>
+<td>1.2.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Storage-sslEnforcement.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-UserAssignedManagedIdentity-VMInsights</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-UserAssignedManagedIdentity-VMInsights.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Vm-autoShutdown</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Vm-autoShutdown.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-VNET-HubSpoke</td>
+<td>1.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-VNET-HubSpoke.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>Policy</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Deploy-Windows-DomainJoin</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyadvertizer/Deploy-Windows-DomainJoin.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Enforce-ACSB</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-ACSB.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Enforce-ALZ-Decomm</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-ALZ-Decomm.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Enforce-ALZ-Sandbox</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-ALZ-Sandbox.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Enforce-Encryption-CMK</td>
+<td>2.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-Encryption-CMK.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Enforce-EncryptTransit</td>
+<td>2.1.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-EncryptTransit.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr> <tr>
+<td>PolicySet</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>Enforce-Guardrails-KeyVault</td>
+<td>1.0.0</td>
+<td></td>
+<td>False</td>
+<td>ALZ GitHub repository</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-Guardrails-KeyVault.html" target="_blank" rel="noopener">AzA Link <i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_ALZPolicies() { if (window.helpertfConfig4TenantSummary_ALZPolicies !== 1) {
+            window.helpertfConfig4TenantSummary_ALZPolicies =1;
+            var tfConfig4TenantSummary_ALZPolicies = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+paging: {results_per_page: ['Records: ', [10, 30, 50, 100, 147]]},/*state: {types: ['local_storage'], filters: true, page_number: true, page_length: true, sort: true},*/
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            col_0: 'select',
+            col_3: 'select',
+            col_7: 'multiple',
+            col_8: 'select',
+            col_9: 'select',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_ALZPolicies', tfConfig4TenantSummary_ALZPolicies);
+        tf.init();}}
+    </script>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 PolicySets / deprecated built-in Policy <abbr title="PolicyDisplayName startswith [Deprecated] &#13;OR &#13;Metadata property Deprecated=true"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Policy assignments / deprecated built-in Policy <abbr title="PolicyDisplayName startswith [Deprecated] &#13;OR &#13;Metadata property Deprecated=true"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Policy exemptions</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Policy assignments orphaned <abbr title="Policy definition not available &#13;(likely a Management Group scoped Policy definition / Management Group deleted)"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Policy assignments</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Policies to remediate</p>
+    </div>
+<button type="button" class="collapsible" id="tenantSummaryRBAC"><hr class="hr-textRBAC" data-content="RBAC" /></button>
+<div class="content TenantSummaryContent">
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Custom Role definitions (ManagementGroup 'root' and descendants wide)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Orphaned Custom Role definitions (ManagementGroup 'root' and descendants wide)</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Orphaned Role assignments (ManagementGroup 'root' and descendants wide)</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No ClassicAdministrators</p>
+<button onclick="loadtffunc_TenantSummary_roleAssignmentsAll()" type="button" class="collapsible" id="buttonTenantSummary_roleAssignmentsAll"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">3 Role assignment related entries (unique -> All: 3, Standing: 3)</span>
+</button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_roleAssignmentsAll');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_roleAssignmentsAll');">comma</a><br>
+<span class="padlxx hintTableSize">*Depending on the number of rows and your computer´s performance the table may respond with delay, download the csv for better filtering experience</span>
+<table id= "TenantSummary_roleAssignmentsAll" class="summaryTable">
+<thead>
+<tr>
+<th>Scope</th>
+<th>Management Group Id</th>
+<th>Management Group Name</th>
+<th>SubscriptionId</th>
+<th>Subscription Name</th>
+<th>Assignment Scope</th>
+<th>Role</th>
+<th>Role Id</th>
+<th>Role Type</th>
+<th>Data</th>
+<th>Can do Role assignment</th>
+<th>Identity Displayname</th>
+<th>Identity SignInName</th>
+<th>Identity ObjectId</th>
+<th>Identity Type</th>
+<th>Applicability</th>
+<th>Applies through membership <abbr title="Note: the identity might not be a direct member of the group it could also be member of a nested group"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></th>
+<th>Group Details</th>
+<th class="uamiresaltbgc">PIM</th>
+<th class="uamiresaltbgc">PIM assignment type</th>
+<th class="uamiresaltbgc">PIM start</th>
+<th class="uamiresaltbgc">PIM end</th>
+<th>Role AssignmentId</th>
+<th>Related Policy Assignment </th>
+<th>CreatedOn</th>
+<th>CreatedBy</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td style="width:40px">Mg</td>
+<td>root</td>
+<td>root</td>
+<td></td>
+<td></td>
+<td>inherited 6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azrolesadvertizer/36243c78-bf99-498c-9df9-86d9f8d28608.html" target="_blank" rel="noopener">Resource Policy Contributor</a></td>
+<td>36243c78-bf99-498c-9df9-86d9f8d28608</td>
+<td>Builtin</td>
+<td>false</td>
+<td>False</td>
+<td class="breakwordall">GitHubActions</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td style="width:76px" class="breakwordnone">SP APP INT</td>
+<td>direct</td>
+<td></td>
+<td></td>
+<td>False</td>
+<td></td>
+<td></td>
+<td></td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/roleassignments/d138a858-2362-44d2-a59d-dc9b96da0430</td>
+<td class="breakwordall">none</td>
+<td class="breakwordall">04/04/2024 09:43:37</td>
+<td class="breakwordall">ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr><tr>
+<td style="width:40px">Ten</td>
+<td>root</td>
+<td>root</td>
+<td></td>
+<td></td>
+<td>inherited Tenant</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azrolesadvertizer/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9.html" target="_blank" rel="noopener">User Access Administrator</a></td>
+<td>18d7d88d-d35e-4fb5-a5c3-7773c20a72d9</td>
+<td>Builtin</td>
+<td>false</td>
+<td>True</td>
+<td class="breakwordall">Jesus Angel Señoran Lopez</td>
+<td class="breakwordall">jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com</td>
+<td class="breakwordall">46c84900-a330-4d3f-87ce-9017b131738c</td>
+<td style="width:76px" class="breakwordnone">User Member</td>
+<td>direct</td>
+<td></td>
+<td></td>
+<td>False</td>
+<td></td>
+<td></td>
+<td></td>
+<td class="breakwordall">/providers/microsoft.authorization/roleassignments/aadc533d-d04d-4583-b9b9-c39c9866efa8</td>
+<td class="breakwordall">none</td>
+<td class="breakwordall">04/04/2024 09:33:41</td>
+<td class="breakwordall">ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr><tr>
+<td style="width:40px">Mg</td>
+<td>root</td>
+<td>root</td>
+<td></td>
+<td></td>
+<td>thisScope MG</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azrolesadvertizer/8e3af657-a8ff-443c-a75c-2fe8c4bcb635.html" target="_blank" rel="noopener">Owner</a></td>
+<td>8e3af657-a8ff-443c-a75c-2fe8c4bcb635</td>
+<td>Builtin</td>
+<td>false</td>
+<td>True</td>
+<td class="breakwordall">Jesus Angel Señoran Lopez</td>
+<td class="breakwordall">jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com</td>
+<td class="breakwordall">46c84900-a330-4d3f-87ce-9017b131738c</td>
+<td style="width:76px" class="breakwordnone">User Member</td>
+<td>direct</td>
+<td></td>
+<td></td>
+<td>False</td>
+<td></td>
+<td></td>
+<td></td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/root/providers/microsoft.authorization/roleassignments/30b7ca3c-e0b1-484a-bdc6-b3a165539af5</td>
+<td class="breakwordall">none</td>
+<td class="breakwordall">04/03/2024 15:14:18</td>
+<td class="breakwordall">ObjectType: SP App EXT, ObjectDisplayName: Azure Management Groups, ObjectSignInName: n/a, ObjectId: 182767f5-04d4-400e-88b6-3a6cc89de38a (r)</td>
+</tr>
+
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_roleAssignmentsAll() { if (window.helpertfConfig4TenantSummary_roleAssignmentsAll !== 1) {
+        window.helpertfConfig4TenantSummary_roleAssignmentsAll =1;
+        var tfConfig4TenantSummary_roleAssignmentsAll = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            //linked_filters: true,
+            col_0: 'multiple',
+            col_8: 'select',
+            col_9: 'select',
+            col_10: 'select',
+            col_14: 'multiple',
+            col_15: 'select',
+            col_18: 'select',
+            col_19: 'select',
+            locale: 'en-US',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'date',
+                'date',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'date',
+                'caseinsensitivestring'
+            ],
+            watermark: ['', '', '', 'try [nonempty]', '', 'thisScope', 'try owner||reader', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+            extensions: [{ name: 'colsVisibility', text: 'Columns: ', enable_tick_all: true },{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_roleAssignmentsAll', tfConfig4TenantSummary_roleAssignmentsAll);
+        tf.init();}}
+    </script>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No PIM Eligibility - </span><span class="info valignMiddle">run Azure Governance Visualizer with a Service Principal to get PIM Eligibility insights</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Custom Role definitions Owner permissions (ManagementGroup 'root' and descendants wide)</p>
+<button onclick="loadtffunc_TenantSummary_RolesCanDoRoleAssignments()" type="button" class="collapsible" id="buttonTenantSummary_RolesCanDoRoleAssignments"><i class="padlx fa fa-exclamation-triangle yellow" aria-hidden="true"></i> <span class="valignMiddle">7 Role definitions can apply Role assignments</span>
+</button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_RolesCanDoRoleAssignments');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_RolesCanDoRoleAssignments');">comma</a>
+<table id="TenantSummary_RolesCanDoRoleAssignments" class="summaryTable">
+<thead>
+<tr>
+<th>Role Name</th>
+<th>RoleId</th>
+<th>Type</th>
+<th>Role assignments</th>
+<th>Assignable Scopes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Azure Sphere Owner</td>
+<td>5a382001-fe36-41ff-bba4-8bf06bd54da9</td>
+<td>BuiltIn</td>
+<td>0</td>
+<td></td>
+</tr><tr>
+<td>Azure Stack HCI Administrator</td>
+<td>bda0d508-adf1-4af0-9c28-88919fc3ae06</td>
+<td>BuiltIn</td>
+<td>0</td>
+<td></td>
+</tr><tr>
+<td>Key Vault Data Access Administrator</td>
+<td>8b54135c-b56d-4d72-a534-26097cfdc8d8</td>
+<td>BuiltIn</td>
+<td>0</td>
+<td></td>
+</tr><tr>
+<td>Owner</td>
+<td>8e3af657-a8ff-443c-a75c-2fe8c4bcb635</td>
+<td>BuiltIn</td>
+<td>1 (/providers/microsoft.management/managementgroups/root/providers/microsoft.authorization/roleassignments/30b7ca3c-e0b1-484a-bdc6-b3a165539af5)</td>
+<td></td>
+</tr><tr>
+<td>Role Based Access Control Administrator</td>
+<td>f58310d9-a9f6-439a-9e8d-f62e7b41a168</td>
+<td>BuiltIn</td>
+<td>0</td>
+<td></td>
+</tr><tr>
+<td>User Access Administrator</td>
+<td>18d7d88d-d35e-4fb5-a5c3-7773c20a72d9</td>
+<td>BuiltIn</td>
+<td>1 (/providers/microsoft.authorization/roleassignments/aadc533d-d04d-4583-b9b9-c39c9866efa8)</td>
+<td></td>
+</tr><tr>
+<td>Virtual Machine Data Access Administrator (preview)</td>
+<td>66f75aeb-eabe-4b70-9f1e-c350c4c9ad04</td>
+<td>BuiltIn</td>
+<td>0</td>
+<td></td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_RolesCanDoRoleAssignments() { if (window.helpertfConfig4TenantSummary_RolesCanDoRoleAssignments !== 1) {
+            window.helpertfConfig4TenantSummary_RolesCanDoRoleAssignments =1;
+            var tfConfig4TenantSummary_RolesCanDoRoleAssignments = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            col_2: 'select',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_RolesCanDoRoleAssignments', tfConfig4TenantSummary_RolesCanDoRoleAssignments);
+        tf.init();}}
+    </script>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Owner permission assignments to ServicePrincipal (ManagementGroup 'root' and descendants wide)</p>
+<button onclick="loadtffunc_TenantSummary_roleAssignmentsOwnerAssignmentNotGroup()" type="button" class="collapsible" id="buttonTenantSummary_roleAssignmentsOwnerAssignmentNotGroup"><i class="padlx fa fa-exclamation-triangle yellow" aria-hidden="true"></i> <span class="valignMiddle">1 Owner permission assignments to notGroup (ManagementGroup 'root' and descendants wide)</span>
+</button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_roleAssignmentsOwnerAssignmentNotGroup');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_roleAssignmentsOwnerAssignmentNotGroup');">comma</a>
+<table id= "TenantSummary_roleAssignmentsOwnerAssignmentNotGroup" class="summaryTable">
+<thead>
+<tr>
+<th>Role Name</th>
+<th>RoleId</th>
+<th>Role Assignment</th>
+<th>Obj Type</th>
+<th>Obj DisplayName</th>
+<th>Obj SignInName</th>
+<th>ObjId</th>
+<th>Impacted Mg/Sub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Owner</td>
+<td>8e3af657-a8ff-443c-a75c-2fe8c4bcb635</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/root/providers/microsoft.authorization/roleassignments/30b7ca3c-e0b1-484a-bdc6-b3a165539af5</td>
+<td>User</td>
+<td>Jesus Angel Señoran Lopez</td>
+<td class="breakwordall">jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com</td>
+<td class="breakwordall">46c84900-a330-4d3f-87ce-9017b131738c</td>
+<td>Mg: 1; Sub: 0</td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_roleAssignmentsOwnerAssignmentNotGroup() { if (window.helpertfConfig4TenantSummary_roleAssignmentsOwnerAssignmentNotGroup !== 1) {
+            window.helpertfConfig4TenantSummary_roleAssignmentsOwnerAssignmentNotGroup =1;
+            var tfConfig4TenantSummary_roleAssignmentsOwnerAssignmentNotGroup = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            col_3: 'multiple',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_roleAssignmentsOwnerAssignmentNotGroup', tfConfig4TenantSummary_roleAssignmentsOwnerAssignmentNotGroup);
+        tf.init();}}
+    </script>
+<button onclick="loadtffunc_TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup()" type="button" class="collapsible" id="buttonTenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup"><i class="padlx fa fa-exclamation-triangle yellow" aria-hidden="true"></i> <span class="valignMiddle">1 UserAccessAdministrator permission assignments to notGroup (ManagementGroup 'root' and descendants wide)</span>
+</button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup');">comma</a>
+<table id= "TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup" class="summaryTable">
+<thead>
+<tr>
+<th>Role Name</th>
+<th>RoleId</th>
+<th>Role Assignment</th>
+<th>Obj Type</th>
+<th>Obj DisplayName</th>
+<th>Obj SignInName</th>
+<th>ObjId</th>
+<th>Impacted Mg/Sub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User Access Administrator</td>
+<td>18d7d88d-d35e-4fb5-a5c3-7773c20a72d9</td>
+<td class="breakwordall">/providers/microsoft.authorization/roleassignments/aadc533d-d04d-4583-b9b9-c39c9866efa8</td>
+<td>User</td>
+<td>Jesus Angel Señoran Lopez</td>
+<td class="breakwordall">jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com</td>
+<td class="breakwordall">46c84900-a330-4d3f-87ce-9017b131738c</td>
+<td>Mg: 1; Sub: 0</td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup() { if (window.helpertfConfig4TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup !== 1) {
+            window.helpertfConfig4TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup =1;
+            var tfConfig4TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            col_3: 'multiple',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup', tfConfig4TenantSummary_roleAssignmentsUserAccessAdministratorAssignmentNotGroup);
+        tf.init();}}
+    </script>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Guest Users with high permissions (ManagementGroup 'root' and descendants wide)</p>
+    </div>
+<button type="button" class="collapsible" id="tenantSummaryBlueprints"><hr class="hr-textBlueprints" data-content="Blueprints" /></button>
+<div class="content TenantSummaryContent">
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Blueprint definitions</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Blueprint assignments</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Orphaned Blueprint definitions</p>
+    </div>
+<button type="button" class="collapsible" id="tenantSummaryManagementGroups"><hr class="hr-textManagementGroups" data-content="Management Groups" /></button>
+<div class="content TenantSummaryContent">
+<button onclick="loadtffunc_TenantSummary_ManagementGroups()" type="button" class="collapsible" id="buttonTenantSummary_Subs"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle">2 Management Groups</span></button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_ManagementGroups');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_ManagementGroups');">comma</a>
+<table id="TenantSummary_ManagementGroups" class="summaryTable">
+<thead>
+<tr>
+<th>Level</th>
+<th>ManagementGroup</th>
+<th>ManagementGroup Id</th>
+<th>Mg children (total)</th>
+<th>Mg children (direct)</th>
+<th>Sub children (total)</th>
+<th>Sub children (direct)</th>
+<th>MG MDfC Score</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td></td>
+<td></td>
+<td>-1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td> <td>n/a</td> <td><a href="#hierarchy_"><i class="fa fa-eye" aria-hidden="true"></i></a> </td>
+</tr> <tr>
+<td>1</td>
+<td>root</td>
+<td>root</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td> <td>n/a</td> <td><a href="#hierarchy_root"><i class="fa fa-eye" aria-hidden="true"></i></a> 6df7235b-9451-436f-a51c-319ec465ccfe/root</td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_TenantSummary_ManagementGroups() { if (window.helpertfConfig4TenantSummary_ManagementGroups !== 1) {
+            window.helpertfConfig4TenantSummary_ManagementGroups =1;
+            var tfConfig4TenantSummary_ManagementGroups = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            col_0: 'select',
+            col_types: [
+                'number',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'number',
+                'number',
+                'number',
+                'number',
+                'caseinsensitivestring',
+                'caseinsensitivestring'
+            ],
+extensions: [{ name: 'sort' }]
+        };
+        var tf = new TableFilter('TenantSummary_ManagementGroups', tfConfig4TenantSummary_ManagementGroups);
+        tf.init();}}
+    </script>
+
+    <p><img class="padlx imgSubTree defaultMG" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Hierarchy Settings | Default Management Group Id: '<b>6df7235b-9451-436f-a51c-319ec465ccfe</b>' <a class="externallink" href="https://learn.microsoft.com/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---default-management-group" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Hierarchy Settings | Require authorization for Management Group creation: '<b>False</b>' <a class="externallink" href="https://learn.microsoft.com/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---require-authorization" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    </div>
+<button type="button" class="collapsible" id="tenantSummarySubscriptions"><hr class="hr-textSubscriptions" data-content="Subscriptions, Resources & Defender" /></button>
+<div class="content TenantSummaryContent">
+    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle">0 Subscriptions</span></p>
+    <p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions_excluded_r.svg"> 0 Subscriptions out-of-scope</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Tag Name Usage (0 Tags) <a class="externallink" href="https://learn.microsoft.com/azure/cloud-adoption-framework/decision-guides/resource-tagging" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources (0 ResourceTypes)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> Resources (0 ResourceTypes)</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Resource fluctuation since last run</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No CAF Naming Recommendation Compliance data</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No cost optimization & cleanup</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Resource Providers</p>
+                    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 Resource Providers</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No enabled Subscriptions Features <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/preview-features" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Resource Locks at all <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources#considerations-before-applying-locks" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Microsoft Defender for Cloud plans at all</p>
+    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Microsoft Defender for Cloud plans at all</p>
+    <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No UserAssigned Managed Identities assigned to Resources / vice versa - at all</p>
+            <i class="padlx fa fa-ban" aria-hidden="true"></i> PSRule for Azure - <span class="info">integration paused - <a class="externallink" href="https://azure.github.io/PSRule.Rules.Azure/integrations" target="_blank" rel="noopener">PSRule for Azure <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Storage Accounts found</p>
+    </div>
+    <button type="button" class="collapsible" id="tenantSummaryNetwork"><hr class="hr-textNetwork" data-content="Network" /></button>
+    <div class="content TenantSummaryContent">
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Virtual Networks</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Subnets</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Virtual Network Peerings</p>
+                <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Private Endpoints</p>
+    </div>
+    <button type="button" class="collapsible" id="tenantSummaryDiagnostics"><hr class="hr-textDiagnostics" data-content="Diagnostics" /></button>
+    <div class="content TenantSummaryContent">
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle"><b>Management Groups</b></span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No Management Groups configured for Diagnostic settings <a class="externallink" href="https://learn.microsoft.com/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<button onclick="loadtffunc_TenantSummary_NoDiagnosticsManagementGroups()" type="button" class="collapsible" id="buttonTenantSummary_NoDiagnosticsManagementGroups"><i class="padlxx fa fa-exclamation-triangle" aria-hidden="true"></i> <span class="valignMiddle">3 Management Groups NOT configured for Diagnostic settings</span> <a class="externallink" href="https://learn.microsoft.com/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></button>
+<div class="content TenantSummary">
+<i class="padlxxx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Management Group Diagnostic Settings - Create Or Update - REST API</span> <a class="externallink" href="https://learn.microsoft.com/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_NoDiagnosticsManagementGroups');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_NoDiagnosticsManagementGroups');">comma</a>
+<table id= "TenantSummary_NoDiagnosticsManagementGroups" class="summaryTable">
+<thead>
+<tr>
+<th>Management Group Name</th>
+<th>Management Group Id</th>
+<th>Management Group path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tenant Root Group</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+</tr> <tr>
+<td>root</td>
+<td>root</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe/root</td>
+</tr> <tr>
+<td>vacio</td>
+<td>vacio</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe/vacio</td>
+</tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    function loadtffunc_TenantSummary_NoDiagnosticsManagementGroups() { if (window.helpertfConfig4TenantSummary_NoDiagnosticsManagementGroups !== 1) {
+        window.helpertfConfig4TenantSummary_NoDiagnosticsManagementGroups =1;
+        var tfConfig4TenantSummary_NoDiagnosticsManagementGroups = {
+        base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+        col_types: [
+            'caseinsensitivestring',
+            'caseinsensitivestring',
+            'caseinsensitivestring'
+        ],
+extensions: [{ name: 'sort' }]
+    };
+    var tf = new TableFilter('TenantSummary_NoDiagnosticsManagementGroups', tfConfig4TenantSummary_NoDiagnosticsManagementGroups);
+    tf.init();}}
+</script>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> <span class="valignMiddle"><b>Subscriptions</b></span></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No Subscriptions configured for Diagnostic settings <a class="externallink" href="https://learn.microsoft.com/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> All Subscriptions are configured for Diagnostic settings <a class="externallink" href="https://learn.microsoft.com/azure/azure-monitor/essentials/quick-collect-activity-log-portal#create-diagnostic-setting" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/10001-icon-service-All-Resources.svg"> <span class="valignMiddle"><b>Resources</b></span></p>
+                <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No Resources (1st party) Diagnostics capable</p>
+                        <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> No ResourceDiagnostics Policy Lifecycle recommendations</p>
+    </div>
+<button type="button" class="collapsible" id="tenantSummaryLimits"><hr class="hr-textLimits" data-content="Limits | 80%" /></button>
+<div class="content TenantSummaryContent">
+<p><i class="padlx fa fa-home" aria-hidden="true"></i> Tenant</p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> PolicySet definitions: 0/2500 <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> Custom Role definitions: 0/5000 <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Management Groups</p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Management Groups approaching Limit (200) for PolicyAssignment <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Management Groups approaching Limit (500) for Policy Scope <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Management Groups approaching Limit (200) for PolicySet Scope <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Management Groups approaching Limit (500) for RoleAssignment <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> Subscriptions</p>
+    <p"><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Subscriptions approaching Limit (980) for ResourceGroups <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Subscriptions approaching Limit (50) for Tags <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#subscription-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Subscriptions approaching Limit (200) for PolicyAssignment <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Subscriptions approaching Limit (500) for Policy Scope <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Subscriptions approaching Limit (200) for PolicySet Scope <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-policy-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+    <p"><i class="padlxx fa fa-check green" aria-hidden="true"></i> 0 Subscriptions approaching Limit () for RoleAssignment <a class="externallink" href="https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits#azure-rbac-limits" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
+</div>
+<button type="button" class="collapsible" id="tenantSummaryAAD"><hr class="hr-textAAD" data-content="Microsoft Entra ID" /></button>
+<div class="content TenantSummaryContent">
+<i class="padlx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Check out <b>AzADServicePrincipalInsights</b></span> <a class="externallink" href="https://aka.ms/azadserviceprincipalinsights" target="_blank" rel="noopener">GitHub <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Demystifying Service Principals - Managed Identities</span> <a class="externallink" href="https://devblogs.microsoft.com/devops/demystifying-service-principals-managed-identities/" target="_blank" rel="noopener">devBlogs <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+<i class="padlx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">John Savill - Azure AD App Registrations, Enterprise Apps and Service Principals</span> <a class="externallink" href="https://www.youtube.com/watch?v=WVNvoiA_ktw" target="_blank" rel="noopener">YouTube <i class="fa fa-external-link" aria-hidden="true"></i></a><br>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No ServicePrincipals where the API returned 'Request_ResourceNotFound'</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No Applications where the API returned 'Request_ResourceNotFound'</p>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 AAD ServicePrincipals type=ManagedIdentity</p>
+<button onclick="loadtffunc_TenantSummary_AADSPCredExpiry()" type="button" class="collapsible" id="buttonTenantSummary_AADSPCredExpiry"><i class="padlx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">1 AAD ServicePrincipals type=Application | 0 Secrets expire < 14d | 0 Certificates expire < 14d</span> <abbr title="ServicePrincipals where a Role assignment exists &#13;(including ResourceGroups and Resources)"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></button>
+<div class="content TenantSummary">
+<i class="padlxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_AADSPCredExpiry');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_AADSPCredExpiry');">comma</a>
+<table id="TenantSummary_AADSPCredExpiry" class="summaryTable">
+<thead>
+<tr>
+<th>ApplicationId</th>
+<th>DisplayName</th>
+<th>Notes</th>
+<th>SP ObjectId</th>
+<th>App ObjectId</th>
+<th>Secrets</th>
+<th>Secrets expired</th>
+<th>Secrets expiry<br><14d</th>
+<th>Secrets expiry<br>>14d & <2y</th>
+<th>Secrets expiry<br>>2y</th>
+<th>Certs</th>
+<th>Certs expired</th>
+<th>Certs expiry<br><14d</th>
+<th>Certs expiry<br>>14d & <2y</th>
+<th>Certs expiry<br>>2y</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0979cdef-a950-49b8-a597-1b2b6fe0ae30</td>
+<td>GitHubActions</td>
+<td></td>
+<td>28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td>332e66ff-51cd-4b38-9e9d-d7b4347f85e5</td> <td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td> <td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td> </tr>
+    </tbody>
+</table>
+</div>
+<script>
+function loadtffunc_TenantSummary_AADSPCredExpiry() { if (window.helpertfConfig4TenantSummary_AADSPCredExpiry !== 1) {
+    window.helpertfConfig4TenantSummary_AADSPCredExpiry =1;
+    var tfConfig4TenantSummary_AADSPCredExpiry = {
+    base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+    col_types: [
+        'caseinsensitivestring',
+        'caseinsensitivestring',
+        'caseinsensitivestring',
+        'caseinsensitivestring',
+        'caseinsensitivestring',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number'
+    ],
+extensions: [{ name: 'sort' }]
+};
+var tf = new TableFilter('TenantSummary_AADSPCredExpiry', tfConfig4TenantSummary_AADSPCredExpiry);
+tf.init();}}
+</script>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> 0 External (appOwnerOrganizationId) AAD ServicePrincipals type=Application</p>
+</div>
+    <button type="button" class="collapsible" id="tenantSummaryConsumption"><hr class="hr-textConsumption" data-content="Consumption" /></button>
+    <div class="content TenantSummaryContent">
+    <i class="padlx fa fa-lightbulb-o" aria-hidden="true"></i> <span class="info">Customize your Azure environment optimizations (Cost, Reliability & more) with</span> <a class="externallink" href="https://github.com/helderpinto/AzureOptimizationEngine" target="_blank" rel="noopener">Azure Optimization Engine (AOE) <i class="fa fa-external-link" aria-hidden="true"></i></a>
+            <p><i class="padlx fa fa-ban" aria-hidden="true"></i> No information on Consumption as switch parameter -DoAzureConsumption was not applied</p>
+</div>
+    <button type="button" class="collapsible" id="tenantSummaryChangeTracking"><hr class="hr-textChangeTracking" data-content="Change tracking | last 14 days; after 04-Apr-2024 23:34:13" /></button>
+    <div class="content TenantSummaryContent">
+    <button type="button" class="collapsible" id="tenantSummaryChangeTrackingPolicy"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/10316-icon-service-Policy.svg"> <span class="ctContenPolicyTrue">Policy</span></button>
+    <div class="content TenantSummaryContent">
+<button onclick="loadtffunc_TenantSummary_ChangeTrackingCustomPolicy()" type="button" class="collapsible" id="buttonTenantSummary_ChangeTrackingCustomPolicy"><i class="padlxx fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle"> 8 Created/Updated custom Policy definitions (Mg: C:7, U:2; Sub: C:0, U:0)</span></button>
+<div class="content TenantSummary">
+<i class="padlxxx fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('TenantSummary_ChangeTrackingCustomPolicy');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('TenantSummary_ChangeTrackingCustomPolicy');">comma</a>
+<table id="TenantSummary_ChangeTrackingCustomPolicy" class="summaryTable">
+<thead>
+<tr>
+<th>Scope</th>
+<th>Scope Id</th>
+<th>Policy DisplayName</th>
+<th>PolicyId</th>
+<th>Category</th>
+<th>Effect</th>
+<th>Role definitions</th>
+<th>Unique assignments</th>
+<th>Used in PolicySets</th>
+<th>Created/Updated</th>
+<th>CreatedOn</th>
+<th>CreatedBy</th>
+<th>UpdatedOn</th>
+<th>UpdatedBy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-DenyEncryptInTransitSSLEnforced</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-denyencryptintransitsslenforced</td>
+<td></td>
+<td>Default: Deny; Allowed: Deny,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created</td>
+<td>04/11/2024 10:33:14</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td></td>
+<td></td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-aad_auth_only_for_iniciative</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-aad_auth_only_for_iniciative</td>
+<td></td>
+<td>Default: AuditIfNotExists; Allowed: AuditIfNotExists,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created</td>
+<td>04/08/2024 15:58:28</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td></td>
+<td></td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-EncryptInTransitSSLEnforced</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-encryptintransitsslenforced</td>
+<td></td>
+<td>Default: AuditIfNotExists; Allowed: AuditIfNotExists,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created</td>
+<td>04/08/2024 15:52:37</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td></td>
+<td></td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-user-admin-in-aad</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-user-admin-in-aad</td>
+<td></td>
+<td>Default: AuditIfNotExists; Allowed: AuditIfNotExists,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created</td>
+<td>04/08/2024 08:44:34</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td></td>
+<td></td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-paccess-allowips-onlyfirewallips</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips-onlyfirewallips</td>
+<td></td>
+<td>Default: AuditIfNotExists; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created</td>
+<td>04/05/2024 10:11:00</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td></td>
+<td></td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-privateendpoint-enabled</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-privateendpoint-enabled</td>
+<td></td>
+<td>Default: AuditIfNotExists; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created</td>
+<td>04/05/2024 09:57:12</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td></td>
+<td></td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-paccess-allowips-prueba3-jasl</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips-prueba3</td>
+<td></td>
+<td>Default: AuditIfNotExists; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Created&Updated</td>
+<td>04/05/2024 08:42:39</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td>04/05/2024 09:29:49</td>
+<td>ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr> <tr>
+<td>Mg</td>
+<td>6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td>bs-aps-paccess-allowips-prueba2-jasl</td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/policydefinitions/bs-aps-paccess-allowips-prueba2</td>
+<td></td>
+<td>Default: Audit; Allowed: Audit,AuditIfNotExists,Deny,Disabled</td>
+<td>n/a</td>
+<td class="breakwordall">0</td>
+<td class="breakwordall">0</td>
+<td>Updated</td>
+<td>04/04/2024 13:58:14</td>
+<td>ObjectType: SP APP INT, ObjectDisplayName: GitHubActions, ObjectSignInName: n/a, ObjectId: 28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td>04/16/2024 09:05:02</td>
+<td>ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr>
+</tbody>
+</table>
+</div>
+<script>
+function loadtffunc_TenantSummary_ChangeTrackingCustomPolicy() { if (window.helpertfConfig4TenantSummary_ChangeTrackingCustomPolicy !== 1) {
+window.helpertfConfig4TenantSummary_ChangeTrackingCustomPolicy =1;
+var tfConfig4TenantSummary_ChangeTrackingCustomPolicy = {
+base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+linked_filters: true,
+col_0: 'select',
+col_9: 'multiple',
+locale: 'en-US',
+col_types: [
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'caseinsensitivestring',
+    'date',
+    'caseinsensitivestring',
+    'date',
+    'caseinsensitivestring'
+],
+extensions: [{ name: 'sort' }]
+};
+var tf = new TableFilter('TenantSummary_ChangeTrackingCustomPolicy', tfConfig4TenantSummary_ChangeTrackingCustomPolicy);
+tf.init();}}
+</script>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> 0 Created/Updated custom PolicySet definitions</p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> 0 Created/Updated Policy assignments</p>
+</div>
+<button type="button" class="collapsible" id="tenantSummaryChangeTrackingRBAC"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/rbacrole.svg"> <span class="ctContenRBACFalse">RBAC</span></button>
+<div class="content TenantSummaryContent">
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> 0 Created/Updated custom Role definitions</p>
+            <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> 0 Created/Updated custom Role definitions</p>
+</div>
+<button type="button" class="collapsible" id="tenantSummaryChangeTrackingResources"><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/10001-icon-service-All-Resources.svg"> <span class="ctContenResourcesFalse">Resources</span></button>
+<div class="content TenantSummaryContent">
+                <p><i class="padlxx fa fa-ban" aria-hidden="true"></i> 0 Created/Changed Resources</p>
+</div>
+</div>
+    <button type="button" class="collapsible" id="tenantSummaryFindings"><hr class="hr-textFindings" data-content="Findings" /></button>
+    <div class="content TenantSummaryContent">
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policydefinition.svg"> Policy 0 Naming findings</p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policysetdefinition.svg"> PolicySet 0 Naming findings</p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/policyassignment.svg"> Policy assignment 0 Naming findings</p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> Management Group 0 Naming findings</p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions.svg"> Subscription 0 Naming findings</p>
+<p><img class="padlx imgSubTree" src="https://www.azadvertizer.net/azgovvizv4/icon/rbacrole.svg"> RBAC 0 Naming Findings</p>
+</div>
+
+    </div><!--summary-->
+    </div><!--summprnt-->
+
+    <div class="definitioninsightsprnt" id="definitioninsightsprnt">
+    <div class="definitioninsights" id="definitioninsights"><p class="pbordered">DefinitionInsights</p>
+        <span>DefinitionInsights has been saved to dedicated HTML file '<i>c:\AzGovViz-Output\AzGovViz_6.4.4_20240418_233117_root_DefinitionInsights.html</i>' (parameter -NoDefinitionInsightsDedicatedHTML = False)</span><br>
+        Open <a class="externallink" href="AzGovViz_6.4.4_20240418_233117_root_DefinitionInsights.html" target="blank">DefinitionInsights <i class="fa fa-external-link" aria-hidden="true"></i></a>
+    </div><!--definitionInsights-->
+    </div><!--definitionInsightsprnt-->    <div class="hierprnt" id="hierprnt">
+        <div class="hierarchyTables" id="hierarchyTables"><p class="pbordered">ScopeInsights</p>
+<button type="button" class="collapsible" id="table_root">| &nbsp;&nbsp;&nbsp;&nbsp;&ndash; L1 &ndash;&nbsp;<img class="imgMg " src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-11-Management-Groups.svg"> <span class="valignMiddle">root <img class="imgSub" src="https://www.azadvertizer.net/azgovvizv4/icon/Icon-general-2-Subscriptions_grey.svg"></span></button>
+<div class="content">
+<table class="bottomrow">
+<tr><td class="detailstd"><a href="#hierarchy_root"><i class="fa fa-eye" aria-hidden="true" style="color: #0078df"></i> <i><span>Highlight Management Group in HierarchyMap</span></i></a></td></tr><tr><td class="detailstd"><p>Management Group Name: <b>root</b></p></td></tr>
+<tr><td class="detailstd"><p>Management Group Id: <b>root</b></p></td></tr>
+<tr><td class="detailstd"><p>Management Group Path: 6df7235b-9451-436f-a51c-319ec465ccfe/root</p></td></tr><tr><td class="detailstd">0 ManagementGroups below this scope</td></tr>
+<tr><td class="detailstd">0 Subscriptions below this scope</td></tr>
+<tr><td class="detailstd"><i class="fa fa-shield" aria-hidden="true"></i> Microsoft Defender for Cloud Secure Score: n/a <a class="externallink" href="https://www.youtube.com/watch?v=2EMnzxdqDhA" target="_blank" rel="noopener">Video <i class="fa fa-external-link" aria-hidden="true"></i></a>, <a class="externallink" href="https://techcommunity.microsoft.com/t5/azure-security-center/security-controls-in-azure-security-center-enable-endpoint/ba-p/1624653" target="_blank" rel="noopener">Blog <i class="fa fa-external-link" aria-hidden="true"></i></a>, <a class="externallink" href="https://learn.microsoft.com/azure/security-center/secure-score-security-controls#how-your-secure-score-is-calculated" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a></td></tr>
+<tr><td class="detailstd">
+    <i class="fa fa-ban" aria-hidden="true"></i> No Management Group Diagnostic settings <a class="externallink" href="https://learn.microsoft.com/rest/api/monitor/managementgroupdiagnosticsettings/createorupdate" target="_blank" rel="noopener">learn <i class="fa fa-external-link" aria-hidden="true"></i></a>
+</td></tr>
+<tr><td class="detailstd">
+<i class="fa fa-credit-card" aria-hidden="true"></i> <span class="valignMiddle">No Consumption data available as switch parameter -DoAzureConsumption was not applied</span>
+            <i class="fa fa-ban" aria-hidden="true"></i> 0 ResourceTypes (all Subscriptions below this scope)
+</td></tr>
+<tr><td class="detailstd">
+            <i class="fa fa-ban" aria-hidden="true"></i> 0 ResourceTypes (1st party) Diagnostics capable (all Subscriptions below this scope)
+</td></tr>
+<tr><td class="detailstd">
+            <i class="fa fa-check-square-o" aria-hidden="true"></i> PSRule for Azure - <span class="info">integration paused - <a class="externallink" href="https://azure.github.io/PSRule.Rules.Azure/integrations" target="_blank" rel="noopener">PSRule for Azure <i class="fa fa-external-link" aria-hidden="true"></i></a>
+    <i class="fa fa-ban" aria-hidden="true"></i> 0 Policy assignments
+        </td></tr>
+        <tr><!--y--><td class="detailstd"><!--y-->
+    <i class="fa fa-ban" aria-hidden="true"></i> 0 PolicySet assignments
+        </td></tr>
+        <tr><!--y--><td class="detailstd"><!--y-->
+            <i class="fa fa-ban" aria-hidden="true"></i> Policy Assignment Limit: 0/200
+</td></tr>
+<tr><td class="detailstd">
+                    <i class="fa fa-ban" aria-hidden="true"></i> 0 Custom Policy definitions scoped
+</td></tr>
+<tr><td class="detailstd">
+                    <i class="fa fa-ban" aria-hidden="true"></i> 0 Custom PolicySet definitions scoped
+</td></tr>
+<tr><td class="detailstd">
+                    <i class="fa fa-ban" aria-hidden="true"></i> 0 Blueprints scoped
+</td></tr>
+<tr><td class="detailstd">
+<button onclick="loadtffunc_ScopeInsights_RoleAssignments_root()" type="button" class="collapsible"><i class="fa fa-check-circle blue" aria-hidden="true"></i> <span class="valignMiddle">3 Role assignments (2 inherited) (User: 2 | Group: 0 | ServicePrincipal: 1 | Orphaned: 0) (CustomRoleOwner: 0, OwnerAssignmentSP: 0) (Policy related: 0) | Limit: (1/500)</span></button>
+<div class="content contentSIMG">
+&nbsp;&nbsp;<i class="fa fa-table" aria-hidden="true"></i> Download CSV <a class="externallink" href="#" onclick="download_table_as_csv_semicolon('ScopeInsights_RoleAssignments_root');">semicolon</a> | <a class="externallink" href="#" onclick="download_table_as_csv_comma('ScopeInsights_RoleAssignments_root');">comma</a><br>
+&nbsp;&nbsp;<span class="hintTableSize">*Depending on the number of rows and your computer´s performance the table may respond with delay, download the csv for better filtering experience</span>
+<table id="ScopeInsights_RoleAssignments_root" class="mgDetailsTable">
+<thead>
+<tr>
+<th>Scope</th>
+<th>Role</th>
+<th>RoleId</th>
+<th>Role Type</th>
+<th>Data</th>
+<th>Can do Role assignment</th>
+<th>Identity Displayname</th>
+<th>Identity SignInName</th>
+<th>Identity ObjectId</th>
+<th>Identity Type</th>
+<th>Applicability</th>
+<th>Applies through membership <abbr title="Note: the identity might not be a direct member of the group it could also be member of a nested group"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr></th>
+<th>Group Details</th>
+<th>Role AssignmentId</th>
+<th>Related Policy Assignment </th>
+<th>CreatedOn</th>
+<th>CreatedBy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>inherited 6df7235b-9451-436f-a51c-319ec465ccfe</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azrolesadvertizer/36243c78-bf99-498c-9df9-86d9f8d28608.html" target="_blank" rel="noopener">Resource Policy Contributor</a></td>
+<td>36243c78-bf99-498c-9df9-86d9f8d28608</td>
+<td>Builtin</td>
+<td>false</td>
+<td>False</td>
+<td class="breakwordall">GitHubActions</td>
+<td class="breakwordall">n/a</td>
+<td class="breakwordall">28bb7b33-5c8b-4b5b-accf-a50d826bb0c5</td>
+<td style="width:76px" class="breakwordnone">SP APP INT</td>
+<td>direct</td>
+<td></td>
+<td></td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/6df7235b-9451-436f-a51c-319ec465ccfe/providers/microsoft.authorization/roleassignments/d138a858-2362-44d2-a59d-dc9b96da0430</td>
+<td class="breakwordall">none</td>
+<td>04/04/2024 09:43:37</td>
+<td>ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr> <tr>
+<td>inherited Tenant</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azrolesadvertizer/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9.html" target="_blank" rel="noopener">User Access Administrator</a></td>
+<td>18d7d88d-d35e-4fb5-a5c3-7773c20a72d9</td>
+<td>Builtin</td>
+<td>false</td>
+<td>True</td>
+<td class="breakwordall">Jesus Angel Señoran Lopez</td>
+<td class="breakwordall">jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com</td>
+<td class="breakwordall">46c84900-a330-4d3f-87ce-9017b131738c</td>
+<td style="width:76px" class="breakwordnone">User Member</td>
+<td>direct</td>
+<td></td>
+<td></td>
+<td class="breakwordall">/providers/microsoft.authorization/roleassignments/aadc533d-d04d-4583-b9b9-c39c9866efa8</td>
+<td class="breakwordall">none</td>
+<td>04/04/2024 09:33:41</td>
+<td>ObjectType: User Member, ObjectDisplayName: Jesus Angel Señoran Lopez, ObjectSignInName: jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com, ObjectId: 46c84900-a330-4d3f-87ce-9017b131738c</td>
+</tr> <tr>
+<td>thisScope MG</td>
+<td><a class="externallink" href="https://www.azadvertizer.net/azrolesadvertizer/8e3af657-a8ff-443c-a75c-2fe8c4bcb635.html" target="_blank" rel="noopener">Owner</a></td>
+<td>8e3af657-a8ff-443c-a75c-2fe8c4bcb635</td>
+<td>Builtin</td>
+<td>false</td>
+<td>True</td>
+<td class="breakwordall">Jesus Angel Señoran Lopez</td>
+<td class="breakwordall">jesus.angel.senoran_gmail.com#EXT#@jesusangelsenorangmail.onmicrosoft.com</td>
+<td class="breakwordall">46c84900-a330-4d3f-87ce-9017b131738c</td>
+<td style="width:76px" class="breakwordnone">User Member</td>
+<td>direct</td>
+<td></td>
+<td></td>
+<td class="breakwordall">/providers/microsoft.management/managementgroups/root/providers/microsoft.authorization/roleassignments/30b7ca3c-e0b1-484a-bdc6-b3a165539af5</td>
+<td class="breakwordall">none</td>
+<td>04/03/2024 15:14:18</td>
+<td>ObjectType: SP App EXT, ObjectDisplayName: Azure Management Groups, ObjectSignInName: n/a, ObjectId: 182767f5-04d4-400e-88b6-3a6cc89de38a (r)</td>
+</tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function loadtffunc_ScopeInsights_RoleAssignments_root() { if (window.helpertfConfig4ScopeInsights_RoleAssignments_root !== 1) {
+            window.helpertfConfig4ScopeInsights_RoleAssignments_root =1;
+            var tfConfig4ScopeInsights_RoleAssignments_root = {
+            base_path: 'https://www.azadvertizer.net/azgovvizv4/tablefilter/', rows_counter: true,
+btn_reset: true, highlight_keywords: true, alternate_rows: true, auto_filter: { delay: 1100 }, no_results_message: true,
+            linked_filters: true,
+            col_3: 'select',
+            col_4: 'select',
+            col_5: 'select',
+            col_9: 'multiple',
+            col_10: 'select',
+            locale: 'en-US',
+            col_types: [
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'caseinsensitivestring',
+                'date',
+                'caseinsensitivestring'
+            ],
+            watermark: ['', 'try owner||reader', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+            extensions: [{ name: 'colsVisibility', text: 'Columns: ', enable_tick_all: true },{ name: 'sort' }]
+        };
+        var tf = new TableFilter('ScopeInsights_RoleAssignments_root', tfConfig4ScopeInsights_RoleAssignments_root);
+        tf.init();}}
+    </script>
+    </td></tr><!--rsi-->
+    <tr>
+        <td class="detailstd">
+            <i class="fa fa-ban" aria-hidden="true"></i> <span>0 Subscriptions linked </span>                </td>
+            </tr>
+
+</table>
+</div>        </div>
+    </div>    <div class="footer">
+    <div class="VersionDiv VersionLatest"></div>
+    <div class="VersionDiv VersionThis"></div>
+    <div class="VersionAlert"></div>        <abbr style="text-decoration:none" title="Date: 18-Apr-2024 21:33:17 (UTC); Version: 6.4.4 &#13;ExecutedBy: jesus.angel.senoran@gmail.com (User, Member) &#13;HierarchyMapOnly: false &#13;SubscriptionQuotaIdWhitelist: false &#13;NoMDfCSecureScore: false &#13;DoNotShowRoleAssignmentsUserData: false &#13;NoPolicyComplianceStates: false &#13;NoResourceDiagnosticsPolicyLifecycle: false &#13;NoAADGroupsResolveMembers: false &#13;AADGroupMembersLimit: 500 &#13;DoAzureConsumption: false &#13;NoScopeInsights: false &#13;NoSingleSubscriptionOutput: false &#13;NoResourceProvidersDetailed: False &#13;NoResourceProvidersAtAll: False &#13;LargeTenant: False &#13;PolicyAtScopeOnly: False &#13;RBACAtScopeOnly: False &#13;DoNotIncludeResourceGroupsOnPolicy: false &#13;DoNotIncludeResourceGroupsAndResourcesOnRBAC: false &#13;NoCsvExport: false &#13;NoJsonExport: false &#13;JsonExportExcludeResourceGroups Policy: False &#13;JsonExportExcludeResourceGroups RBAC: False &#13;JsonExportExcludeResources RBAC: False &#13;NoResources: False &#13;DoPSRule: False &#13;NoPIMEligibility: True &#13;Creation duration: 3.06470787666667 minutes &#13;"><i class="fa fa-question-circle" aria-hidden="true"></i></abbr> <button id="hierarchyTreeShowHide" onclick="toggleHierarchyTree()">Hide HierarchyMap</button> <button id="summaryShowHide" onclick="togglesummprnt()">Hide TenantSummary</button> <button id="definitionInsightsShowHide" onclick="toggledefinitioninsightsprnt()">Hide DefinitionInsights</button> <button id="hierprntShowHide" onclick="togglehierprnt()">Hide ScopeInsights</button> 
+        <hr>    </div>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/toggle_v004_004.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/collapsetable_v004_001.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/fitty_v004_001.min.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/version_v004_004.js"></script>
+    <script src="https://www.azadvertizer.net/azgovvizv4/js/autocorrectOff_v004_001.js"></script>
+    <script>
+        fitty('#fitme', {
+            minSize: 7,
+            maxSize: 10
+        });
+    </script>
+
+    <script>
+        $("#getImage").on('click', function () {
+
+            element = document.getElementById('saveAsImageArea')
+            var images = element.getElementsByTagName('img');
+            var l = images.length;
+            for (var i = 0; i < l; i++) {
+                images[0].parentNode.removeChild(images[0]);
+            }
+
+            var scale = 3;
+            domtoimage.toPng(element, { quality: 0.95 , width: element.clientWidth * scale,
+                height: element.clientHeight * scale,
+                style: {
+                    transform: 'scale('+scale+')',
+                    transformOrigin: 'top left'
+            }})
+                .then(function (dataUrl) {
+                var link = document.createElement('a');
+                link.download = 'AzGovViz_6.4.4_20240418_233117_root.png';
+                link.href = dataUrl;
+                link.click();
+            });
+
+            // domtoimage.toJpeg(element)
+            //     .then(function (dataUrl) {
+            //         var link = document.createElement('a');
+            //         link.download = 'AzGovViz_6.4.4_20240418_233117_root.jpeg';
+            //         link.href = dataUrl;
+            //         link.click();
+            //     });
+
+            })
+    </script>
+</body>
+</html>

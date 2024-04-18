@@ -1,0 +1,5 @@
+Ejecutar esto para que funcione. y Darle a intro de vez en cuando si se queda pillado.
+
+Connect-AzAccount -Tenant 6df7235b-9451-436f-a51c-319ec465ccfe -UseDeviceAuthentication
+
+.\AzGovVizParallel.ps1 -ManagementGroupId root -OutputPath "c:\AzGovViz-Output"
